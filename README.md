@@ -62,83 +62,54 @@ Currently, async fn cannot be used in traits. The reasons for this are somewhat 
 ### TEST - 128 MB - COLD ###
 
 ```
-START RequestId: 64956f8b-9823-4ddc-aea6-303606076b36 Version: $LATEST
-2021-10-27 13:05:42,938 INFO  [bootstrap::library::lambda::handler] input Request { pk: Some("Daniele") }
-2021-10-27 13:05:43,078 INFO  [aws_config::meta::region] load_region; provider=EnvironmentVariableRegionProvider { env: Env(Real) }
-2021-10-27 13:05:43,138 INFO  [tracing::span] load_config_file
-2021-10-27 13:05:43,138 WARN  [aws_config::profile::parser::source] could not determine home directory but home expansion was requested 
-2021-10-27 13:05:43,138 INFO  [aws_config::profile::parser::source] config file not found path=~/.aws/config 
-2021-10-27 13:05:43,138 INFO  [aws_config::profile::parser::source] config file loaded path=~/.aws/config size=0 
-2021-10-27 13:05:43,138 INFO  [tracing::span] load_credentials_file
-2021-10-27 13:05:43,138 WARN  [aws_config::profile::parser::source] could not determine home directory but home expansion was requested 
-2021-10-27 13:05:43,138 INFO  [aws_config::profile::parser::source] config file not found path=~/.aws/credentials 
-2021-10-27 13:05:43,139 INFO  [aws_config::profile::parser::source] config file loaded path=~/.aws/credentials size=0 
-2021-10-27 13:05:43,139 WARN  [aws_config::profile::retry_config] failed to get selected 'default' profile 
-2021-10-27 13:05:43,157 INFO  [tracing::span] build_profile_provider
-2021-10-27 13:05:43,358 INFO  [bootstrap::library::lambda::handler] Fetching product Daniele
-2021-10-27 13:05:43,378 INFO  [aws_smithy_http_tower::parse_response] send_operation
-2021-10-27 13:05:43,379 INFO  [aws_smithy_http_tower::parse_response] send_operation; operation="GetItem"
-2021-10-27 13:05:43,379 INFO  [aws_smithy_http_tower::parse_response] send_operation; service="dynamodb"
-2021-10-27 13:05:43,379 INFO  [aws_config::meta::credentials::chain] load_credentials; provider=Environment
-2021-10-27 13:05:43,379 INFO  [aws_config::meta::credentials::chain] loaded credentials provider=Environment 
-2021-10-27 13:05:43,447 INFO  [aws_smithy_http_tower::parse_response] send_operation; status="ok"
-2021-10-27 13:05:43,447 ERROR [lambda_runtime] InternalError: Missing 'id' 
-END RequestId: 64956f8b-9823-4ddc-aea6-303606076b36
-REPORT RequestId: 64956f8b-9823-4ddc-aea6-303606076b36  Duration: 510.35 ms Billed Duration: 540 ms Memory Size: 128 MB Max Memory Used: 20 MB  Init Duration: 29.47 ms 
-```
-
-### TEST - 128 MB - COLD ###
-
-```
-START RequestId: 14ac9a7d-2656-42c3-b3cb-76a1f0024ae6 Version: $LATEST
-2021-10-27 14:15:30,808 INFO  [bootstrap::library::lambda::handler] input Request { pk: Some("Daniele") }
-2021-10-27 14:15:30,962 INFO  [aws_config::meta::region] load_region; provider=EnvironmentVariableRegionProvider { env: Env(Real) }
-2021-10-27 14:15:31,002 INFO  [tracing::span] load_config_file
-2021-10-27 14:15:31,002 WARN  [aws_config::profile::parser::source] could not determine home directory but home expansion was requested 
-2021-10-27 14:15:31,002 INFO  [aws_config::profile::parser::source] config file not found path=~/.aws/config 
-2021-10-27 14:15:31,002 INFO  [aws_config::profile::parser::source] config file loaded path=~/.aws/config size=0 
-2021-10-27 14:15:31,002 INFO  [tracing::span] load_credentials_file
-2021-10-27 14:15:31,002 WARN  [aws_config::profile::parser::source] could not determine home directory but home expansion was requested 
-2021-10-27 14:15:31,002 INFO  [aws_config::profile::parser::source] config file not found path=~/.aws/credentials 
-2021-10-27 14:15:31,002 INFO  [aws_config::profile::parser::source] config file loaded path=~/.aws/credentials size=0 
-2021-10-27 14:15:31,002 WARN  [aws_config::profile::retry_config] failed to get selected 'default' profile 
-2021-10-27 14:15:31,002 INFO  [tracing::span] build_profile_provider
-2021-10-27 14:15:31,223 INFO  [bootstrap::library::lambda::handler] Fetching product Daniele
-2021-10-27 14:15:31,242 INFO  [aws_smithy_http_tower::parse_response] send_operation
-2021-10-27 14:15:31,242 INFO  [aws_smithy_http_tower::parse_response] send_operation; operation="GetItem"
-2021-10-27 14:15:31,242 INFO  [aws_smithy_http_tower::parse_response] send_operation; service="dynamodb"
-2021-10-27 14:15:31,242 INFO  [aws_config::meta::credentials::chain] load_credentials; provider=Environment
-2021-10-27 14:15:31,242 INFO  [aws_config::meta::credentials::chain] loaded credentials provider=Environment 
-2021-10-27 14:15:31,318 INFO  [aws_smithy_http_tower::parse_response] send_operation; status="ok"
-END RequestId: 14ac9a7d-2656-42c3-b3cb-76a1f0024ae6
-REPORT RequestId: 14ac9a7d-2656-42c3-b3cb-76a1f0024ae6  Duration: 512.40 ms Billed Duration: 544 ms Memory Size: 128 MB Max Memory Used: 20 MB  Init Duration: 30.98 ms 
+START RequestId: 5eecf9c5-14c8-465a-8450-7c8bb8623b01 Version: $LATEST
+2021-10-27 15:01:21,313 INFO  [bootstrap::library::lambda::handler] input Request { pk: Some("Daniele") }
+2021-10-27 15:01:21,452 INFO  [aws_config::meta::region] load_region; provider=EnvironmentVariableRegionProvider { env: Env(Real) }
+2021-10-27 15:01:21,512 INFO  [tracing::span] load_config_file
+2021-10-27 15:01:21,512 WARN  [aws_config::profile::parser::source] could not determine home directory but home expansion was requested 
+2021-10-27 15:01:21,512 INFO  [aws_config::profile::parser::source] config file not found path=~/.aws/config 
+2021-10-27 15:01:21,512 INFO  [aws_config::profile::parser::source] config file loaded path=~/.aws/config size=0 
+2021-10-27 15:01:21,512 INFO  [tracing::span] load_credentials_file
+2021-10-27 15:01:21,512 WARN  [aws_config::profile::parser::source] could not determine home directory but home expansion was requested 
+2021-10-27 15:01:21,512 INFO  [aws_config::profile::parser::source] config file not found path=~/.aws/credentials 
+2021-10-27 15:01:21,512 INFO  [aws_config::profile::parser::source] config file loaded path=~/.aws/credentials size=0 
+2021-10-27 15:01:21,532 WARN  [aws_config::profile::retry_config] failed to get selected 'default' profile 
+2021-10-27 15:01:21,532 INFO  [tracing::span] build_profile_provider
+2021-10-27 15:01:21,732 INFO  [bootstrap::library::lambda::handler] Fetching product Daniele
+2021-10-27 15:01:21,732 INFO  [aws_smithy_http_tower::parse_response] send_operation
+2021-10-27 15:01:21,732 INFO  [aws_smithy_http_tower::parse_response] send_operation; operation="GetItem"
+2021-10-27 15:01:21,732 INFO  [aws_smithy_http_tower::parse_response] send_operation; service="dynamodb"
+2021-10-27 15:01:21,732 INFO  [aws_config::meta::credentials::chain] load_credentials; provider=Environment
+2021-10-27 15:01:21,732 INFO  [aws_config::meta::credentials::chain] loaded credentials provider=Environment 
+2021-10-27 15:01:21,803 INFO  [aws_smithy_http_tower::parse_response] send_operation; status="ok"
+END RequestId: 5eecf9c5-14c8-465a-8450-7c8bb8623b01
+REPORT RequestId: 5eecf9c5-14c8-465a-8450-7c8bb8623b01	Duration: 491.49 ms	Billed Duration: 527 ms	Memory Size: 128 MB	Max Memory Used: 20 MB	Init Duration: 34.61 ms	
 ```
 
 ### TEST - 128 MB - WARM ###
-
 ```
-START RequestId: 103e6e42-ce73-41b9-8b07-48680441fa43 Version: $LATEST
-2021-10-27 14:15:46,273 INFO  [bootstrap::library::lambda::handler] input Request { pk: Some("Daniele") }
-2021-10-27 14:15:46,273 INFO  [aws_config::meta::region] load_region; provider=EnvironmentVariableRegionProvider { env: Env(Real) }
-2021-10-27 14:15:46,273 INFO  [tracing::span] load_config_file
-2021-10-27 14:15:46,273 WARN  [aws_config::profile::parser::source] could not determine home directory but home expansion was requested 
-2021-10-27 14:15:46,273 INFO  [aws_config::profile::parser::source] config file not found path=~/.aws/config 
-2021-10-27 14:15:46,273 INFO  [aws_config::profile::parser::source] config file loaded path=~/.aws/config size=0 
-2021-10-27 14:15:46,273 INFO  [tracing::span] load_credentials_file
-2021-10-27 14:15:46,273 WARN  [aws_config::profile::parser::source] could not determine home directory but home expansion was requested 
-2021-10-27 14:15:46,273 INFO  [aws_config::profile::parser::source] config file not found path=~/.aws/credentials 
-2021-10-27 14:15:46,273 INFO  [aws_config::profile::parser::source] config file loaded path=~/.aws/credentials size=0 
-2021-10-27 14:15:46,273 WARN  [aws_config::profile::retry_config] failed to get selected 'default' profile 
-2021-10-27 14:15:46,273 INFO  [tracing::span] build_profile_provider
-2021-10-27 14:15:46,274 INFO  [bootstrap::library::lambda::handler] Fetching product Daniele
-2021-10-27 14:15:46,274 INFO  [aws_smithy_http_tower::parse_response] send_operation
-2021-10-27 14:15:46,274 INFO  [aws_smithy_http_tower::parse_response] send_operation; operation="GetItem"
-2021-10-27 14:15:46,274 INFO  [aws_smithy_http_tower::parse_response] send_operation; service="dynamodb"
-2021-10-27 14:15:46,274 INFO  [aws_config::meta::credentials::chain] load_credentials; provider=Environment
-2021-10-27 14:15:46,274 INFO  [aws_config::meta::credentials::chain] loaded credentials provider=Environment 
-2021-10-27 14:15:46,299 INFO  [aws_smithy_http_tower::parse_response] send_operation; status="ok"
-END RequestId: 103e6e42-ce73-41b9-8b07-48680441fa43
-REPORT RequestId: 103e6e42-ce73-41b9-8b07-48680441fa43  Duration: 29.04 ms  Billed Duration: 30 ms  Memory Size: 128 MB Max Memory Used: 20 MB  
+START RequestId: 9e9e9741-0518-4f30-919f-d529a378d161 Version: $LATEST
+2021-10-27 15:01:35,887 INFO  [bootstrap::library::lambda::handler] input Request { pk: Some("Daniele") }
+2021-10-27 15:01:35,887 INFO  [aws_config::meta::region] load_region; provider=EnvironmentVariableRegionProvider { env: Env(Real) }
+2021-10-27 15:01:35,887 INFO  [tracing::span] load_config_file
+2021-10-27 15:01:35,887 WARN  [aws_config::profile::parser::source] could not determine home directory but home expansion was requested 
+2021-10-27 15:01:35,887 INFO  [aws_config::profile::parser::source] config file not found path=~/.aws/config 
+2021-10-27 15:01:35,887 INFO  [aws_config::profile::parser::source] config file loaded path=~/.aws/config size=0 
+2021-10-27 15:01:35,887 INFO  [tracing::span] load_credentials_file
+2021-10-27 15:01:35,887 WARN  [aws_config::profile::parser::source] could not determine home directory but home expansion was requested 
+2021-10-27 15:01:35,887 INFO  [aws_config::profile::parser::source] config file not found path=~/.aws/credentials 
+2021-10-27 15:01:35,887 INFO  [aws_config::profile::parser::source] config file loaded path=~/.aws/credentials size=0 
+2021-10-27 15:01:35,887 WARN  [aws_config::profile::retry_config] failed to get selected 'default' profile 
+2021-10-27 15:01:35,887 INFO  [tracing::span] build_profile_provider
+2021-10-27 15:01:35,887 INFO  [bootstrap::library::lambda::handler] Fetching product Daniele
+2021-10-27 15:01:35,887 INFO  [aws_smithy_http_tower::parse_response] send_operation
+2021-10-27 15:01:35,887 INFO  [aws_smithy_http_tower::parse_response] send_operation; operation="GetItem"
+2021-10-27 15:01:35,887 INFO  [aws_smithy_http_tower::parse_response] send_operation; service="dynamodb"
+2021-10-27 15:01:35,887 INFO  [aws_config::meta::credentials::chain] load_credentials; provider=Environment
+2021-10-27 15:01:35,887 INFO  [aws_config::meta::credentials::chain] loaded credentials provider=Environment 
+2021-10-27 15:01:35,909 INFO  [aws_smithy_http_tower::parse_response] send_operation; status="ok"
+END RequestId: 9e9e9741-0518-4f30-919f-d529a378d161
+REPORT RequestId: 9e9e9741-0518-4f30-919f-d529a378d161	Duration: 24.10 ms	Billed Duration: 25 ms	Memory Size: 128 MB	Max Memory Used: 20 MB	
 ```
 
 ### TEST - 1024 MB - COLD ###
