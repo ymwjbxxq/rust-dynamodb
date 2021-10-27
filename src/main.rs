@@ -2,11 +2,11 @@ use lambda_runtime::{handler_fn, Error};
 use log::LevelFilter;
 use simple_logger::SimpleLogger;
 
-mod library;
 mod dtos;
+mod errors;
+mod library;
 mod models;
 mod queries;
-mod errors;
 use library::lambda::handler::execute;
 
 #[tokio::main]

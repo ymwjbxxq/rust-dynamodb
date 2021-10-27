@@ -6,7 +6,7 @@ use async_trait::async_trait;
 
 #[async_trait]
 pub trait GetByIdQuery {
-    async fn new() -> Self;
+    async fn new(client: Client) -> Self;
     async fn execute(&self, pk: &str) -> Result<Option<Product>, Error>;
 }
 
@@ -18,9 +18,7 @@ pub struct GetById {
 
 #[async_trait]
 impl GetByIdQuery for GetById {
-  async fn new() -> Self {
-    let config = aws_config::load_from_env().await;
-    let client = aws_sdk_dynamodb::Client::new(&config);
+  async fn new(client: Client) -> Self {
     let table_name = std::env::var("TABLE_NAME").expect("TABLE_NAME must be set");
     Self { client, table_name }
   }

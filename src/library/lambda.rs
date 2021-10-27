@@ -8,13 +8,18 @@ pub mod handler {
   pub async fn execute(event: Request, _ctx: Context) -> Result<Option<Product>, Error> {
     log::info!("input {:?}", event);
     let id = event.pk.expect("id must be set");
-    let query = GetById::new().await;
+
+    // init aws config
+    let config = aws_config::load_from_env().await;
+    let client = aws_sdk_dynamodb::Client::new(&config);
+
     log::info!("Fetching product {}", id);
-    let product = query.execute(&id).await?;
+    let product = GetById::new(client).await
+                          .execute(&id).await?;
 
     Ok(match product {
-       Some(item) => Some(item),
-       None => None,
+      Some(item) => Some(item),
+      None => None,
     })
   }
 }
