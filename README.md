@@ -165,3 +165,14 @@ START RequestId: 00dcc1cf-eac2-4479-8fab-07abaa07061b Version: $LATEST
 END RequestId: 00dcc1cf-eac2-4479-8fab-07abaa07061b
 REPORT RequestId: 00dcc1cf-eac2-4479-8fab-07abaa07061b  Duration: 33.64 ms  Billed Duration: 34 ms  Memory Size: 1024 MB  Max Memory Used: 20 MB  
 ```
+
+### Deploy ###
+```
+./deploy.sh
+```
+It will take care to build, create the zip and run for you the sam deploy.
+
+### Cleanup ###
+```
+sam delete --stack-name STACK_NAME
+```
