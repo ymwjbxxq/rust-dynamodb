@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: sam-app
+
+Globals:
+  Function:
+    Timeout: 30
+    Environment:
+      Variables:
+        RUST_BACKTRACE: 1
+        RUST_LOG: info
+        TABLE_NAME: !Ref Table
+
+Resources:
+  Table:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+
+  HelloRustFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: HelloRust
+      Handler: bootstrap.is.real.handler
+      Runtime: provided
+      MemorySize: 128
+      CodeUri: ./rust.zip
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: dynamodb:GetItem
+              Resource: !GetAtt Table.Arn
+
+Outputs:
+  HelloRustFunction:
+    Description: "Hello Rust Lambda Function ARN"
+    Value: !GetAtt HelloRustFunction.Arn
+  DynamodbTable:
+    Description: "DynamoDB table ARN"
+    Value: !GetAtt Table.Arn
