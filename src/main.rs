@@ -1,4 +1,6 @@
-use lambda_runtime::{handler_fn, Error};
+use serde_json::Value;
+use crate::library::aws_client::AWSClient;
+use lambda_runtime::{handler_fn, Error, Context};
 use log::LevelFilter;
 use simple_logger::SimpleLogger;
 
@@ -17,7 +19,14 @@ async fn main() -> Result<(), Error> {
     .init()
     .unwrap();
 
-  let func = handler_fn(execute);
-  lambda_runtime::run(func).await?;
+  let config = aws_config::load_from_env().await;
+  let aws_client = AWSClient::set_config(config);
+  let client = aws_client.dynamo_client();
+
+  lambda_runtime::run(handler_fn(|event: Value, ctx: Context| {
+        execute(&client, event, ctx)
+    })) 
+    .await?;
+
   Ok(())
 }

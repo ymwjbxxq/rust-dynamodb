@@ -6,26 +6,24 @@ use async_trait::async_trait;
 
 #[async_trait]
 pub trait GetByIdQuery {
-    async fn new(client: Client) -> Self;
-    async fn execute(&self, pk: &str) -> Result<Option<Product>, Error>;
+    async fn new() -> Self;
+    async fn execute(&self, client: &Client, pk: &str) -> Result<Option<Product>, Error>;
 }
 
 #[derive(Debug)]
 pub struct GetById {
-  client: Client,
   table_name: String,
 }
 
 #[async_trait]
 impl GetByIdQuery for GetById {
-  async fn new(client: Client) -> Self {
+  async fn new() -> Self {
     let table_name = std::env::var("TABLE_NAME").expect("TABLE_NAME must be set");
-    Self { client, table_name }
+    Self { table_name }
   }
 
-  async fn execute(&self, pk: &str) -> Result<Option<Product>, Error> {
-    let res = self
-      .client
+  async fn execute(&self, client: &Client, pk: &str) -> Result<Option<Product>, Error> {
+    let res = client
       .get_item()
       .table_name(&self.table_name)
       .key("pk", AttributeValue::S(pk.to_owned()))

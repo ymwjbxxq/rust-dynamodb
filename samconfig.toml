@@ -2,9 +2,9 @@ version = 0.1
 [test]
 [test.deploy]
 [test.deploy.parameters]
-stack_name = "daniele"
+stack_name = "rust-dynamodb"
 s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-yf79lochy3zo"
-s3_prefix = "daniele"
+s3_prefix = "rust-dynamodb"
 region = "eu-central-1"
 profile = "test"
 confirm_changeset = true

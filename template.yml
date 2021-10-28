@@ -26,7 +26,6 @@ Resources:
   HelloRustFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: HelloRust
       Handler: bootstrap.is.real.handler
       Runtime: provided
       MemorySize: 128
