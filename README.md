@@ -59,7 +59,131 @@ Currently, async fn cannot be used in traits. The reasons for this are somewhat 
 **In the meantime, however, this can be worked around using the [async-trait](https://github.com/dtolnay/async-trait) crate from crates.io.**
 
 
+The main() function 
+```
+#[tokio::main]
+async fn main() -> Result<(), Error> {
+  // required to enable CloudWatch error logging by the runtime
+  SimpleLogger::new()
+    .with_level(LevelFilter::Info)
+    .init()
+    .unwrap();
+
+  let config = aws_config::load_from_env().await;
+  let aws_client = AWSClient::set_config(config);
+  let client = aws_client.dynamo_client();
+
+  lambda_runtime::run(handler_fn(|event: Value, ctx: Context| {
+        execute(&client, event, ctx)
+    })) 
+    .await?;
+
+  Ok(())
+}
+```
+
+is the place to do all the initialization and take advantage of execution environment reuse to improve the performance of the function. It will run once when Lambda initializes the execution environment. The lambda_runtime::run() function will start the handler loop calling the Runtime API, fetch the next event and invoke the "execute" function.
+
+### TEST RESULTS ###
+
+You will find two type of tests:
+- Results where I initialized the config and Dynamodb outside of the handler 
+- Results where I initialized the config and Dynamodb inside of the handler 
+
+The difference is evident
+| Memory | Cold | Inside | Outside | Difference ms |
+| ------ | ---- |------- |---------|---------------|  
+| 128    | Yes  | 527 ms | 160 ms  | 367 ms        |
+| 1024   | Yes  | 104 ms | 104 ms  | -             |
+| 128    | No   | 25 ms  | 5 ms    | 20 ms         |
+| 1024   | No   | 34 ms  | 5 ms    | 29 ms         |
+
 ### TEST - 128 MB - COLD ###
+
+```
+START RequestId: c682b222-6a88-41cd-b09d-6c2108b1a028 Version: $LATEST
+2021-10-28 09:36:44,333 INFO  [aws_config::meta::region] load_region; provider=EnvironmentVariableRegionProvider { env: Env(Real) }
+2021-10-28 09:36:44,337 INFO  [tracing::span] load_config_file
+2021-10-28 09:36:44,337 WARN  [aws_config::profile::parser::source] could not determine home directory but home expansion was requested 
+2021-10-28 09:36:44,337 INFO  [aws_config::profile::parser::source] config file not found path=~/.aws/config 
+2021-10-28 09:36:44,337 INFO  [aws_config::profile::parser::source] config file loaded path=~/.aws/config size=0 
+2021-10-28 09:36:44,337 INFO  [tracing::span] load_credentials_file
+2021-10-28 09:36:44,337 WARN  [aws_config::profile::parser::source] could not determine home directory but home expansion was requested 
+2021-10-28 09:36:44,337 INFO  [aws_config::profile::parser::source] config file not found path=~/.aws/credentials 
+2021-10-28 09:36:44,337 INFO  [aws_config::profile::parser::source] config file loaded path=~/.aws/credentials size=0 
+2021-10-28 09:36:44,337 WARN  [aws_config::profile::retry_config] failed to get selected 'default' profile 
+2021-10-28 09:36:44,337 INFO  [tracing::span] build_profile_provider
+2021-10-28 09:36:44,360 INFO  [bootstrap::library::lambda::handler] input Object({"pk": String("Daniele")})
+2021-10-28 09:36:44,360 INFO  [bootstrap::library::lambda::handler] Fetching product Daniele
+2021-10-28 09:36:44,361 INFO  [aws_smithy_http_tower::parse_response] send_operation
+2021-10-28 09:36:44,361 INFO  [aws_smithy_http_tower::parse_response] send_operation; operation="GetItem"
+2021-10-28 09:36:44,361 INFO  [aws_smithy_http_tower::parse_response] send_operation; service="dynamodb"
+2021-10-28 09:36:44,362 INFO  [aws_config::meta::credentials::chain] load_credentials; provider=Environment
+2021-10-28 09:36:44,362 INFO  [aws_config::meta::credentials::chain] loaded credentials provider=Environment 
+2021-10-28 09:36:44,448 INFO  [aws_smithy_http_tower::parse_response] send_operation; status="ok"
+END RequestId: c682b222-6a88-41cd-b09d-6c2108b1a028
+REPORT RequestId: c682b222-6a88-41cd-b09d-6c2108b1a028	Duration: 89.69 ms	Billed Duration: 160 ms	Memory Size: 128 MB	Max Memory Used: 20 MB	Init Duration: 70.09 ms	
+```
+
+### TEST - 128 MB - WARM ###
+```
+START RequestId: 697bb515-6890-4b35-bb5d-33bbd359536e Version: $LATEST
+2021-10-28 09:36:59,487 INFO  [bootstrap::library::lambda::handler] input Object({"pk": String("Daniele")})
+2021-10-28 09:36:59,487 INFO  [bootstrap::library::lambda::handler] Fetching product Daniele
+2021-10-28 09:36:59,487 INFO  [aws_smithy_http_tower::parse_response] send_operation
+2021-10-28 09:36:59,487 INFO  [aws_smithy_http_tower::parse_response] send_operation; operation="GetItem"
+2021-10-28 09:36:59,487 INFO  [aws_smithy_http_tower::parse_response] send_operation; service="dynamodb"
+2021-10-28 09:36:59,487 INFO  [aws_config::meta::credentials::chain] load_credentials; provider=Environment
+2021-10-28 09:36:59,487 INFO  [aws_config::meta::credentials::chain] loaded credentials provider=Environment 
+2021-10-28 09:36:59,490 INFO  [aws_smithy_http_tower::parse_response] send_operation; status="ok"
+END RequestId: 697bb515-6890-4b35-bb5d-33bbd359536e
+REPORT RequestId: 697bb515-6890-4b35-bb5d-33bbd359536e	Duration: 4.22 ms	Billed Duration: 5 ms	Memory Size: 128 MB	Max Memory Used: 20 MB	
+```
+
+### TEST - 1024 MB - COLD ###
+
+```
+START RequestId: 7cb70abb-8ca9-48ed-9ca2-b295e902c19f Version: $LATEST
+2021-10-27 14:18:00,742 INFO  [bootstrap::library::lambda::handler] input Request { pk: Some("Daniele") }
+2021-10-27 14:18:00,755 INFO  [aws_config::meta::region] load_region; provider=EnvironmentVariableRegionProvider { env: Env(Real) }
+2021-10-27 14:18:00,759 INFO  [tracing::span] load_config_file
+2021-10-27 14:18:00,759 WARN  [aws_config::profile::parser::source] could not determine home directory but home expansion was requested 
+2021-10-27 14:18:00,759 INFO  [aws_config::profile::parser::source] config file not found path=~/.aws/config 
+2021-10-27 14:18:00,759 INFO  [aws_config::profile::parser::source] config file loaded path=~/.aws/config size=0 
+2021-10-27 14:18:00,759 INFO  [tracing::span] load_credentials_file
+2021-10-27 14:18:00,759 WARN  [aws_config::profile::parser::source] could not determine home directory but home expansion was requested 
+2021-10-27 14:18:00,759 INFO  [aws_config::profile::parser::source] config file not found path=~/.aws/credentials 
+2021-10-27 14:18:00,759 INFO  [aws_config::profile::parser::source] config file loaded path=~/.aws/credentials size=0 
+2021-10-27 14:18:00,759 WARN  [aws_config::profile::retry_config] failed to get selected 'default' profile 
+2021-10-27 14:18:00,759 INFO  [tracing::span] build_profile_provider
+2021-10-27 14:18:00,781 INFO  [bootstrap::library::lambda::handler] Fetching product Daniele
+2021-10-27 14:18:00,782 INFO  [aws_smithy_http_tower::parse_response] send_operation
+2021-10-27 14:18:00,782 INFO  [aws_smithy_http_tower::parse_response] send_operation; operation="GetItem"
+2021-10-27 14:18:00,782 INFO  [aws_smithy_http_tower::parse_response] send_operation; service="dynamodb"
+2021-10-27 14:18:00,782 INFO  [aws_config::meta::credentials::chain] load_credentials; provider=Environment
+2021-10-27 14:18:00,782 INFO  [aws_config::meta::credentials::chain] loaded credentials provider=Environment 
+2021-10-27 14:18:00,806 INFO  [aws_smithy_http_tower::parse_response] send_operation; status="ok"
+END RequestId: 7cb70abb-8ca9-48ed-9ca2-b295e902c19f
+REPORT RequestId: 7cb70abb-8ca9-48ed-9ca2-b295e902c19f  Duration: 65.48 ms  Billed Duration: 104 ms Memory Size: 1024 MB  Max Memory Used: 20 MB  Init Duration: 37.57 ms 
+```
+
+### TEST - 1024 MB - WARM ###
+
+```
+START RequestId: f5799e47-b3d7-4a4f-97fa-1cff3c152b42 Version: $LATEST
+2021-10-28 09:37:45,179 INFO  [bootstrap::library::lambda::handler] input Object({"pk": String("Daniele")})
+2021-10-28 09:37:45,179 INFO  [bootstrap::library::lambda::handler] Fetching product Daniele
+2021-10-28 09:37:45,179 INFO  [aws_smithy_http_tower::parse_response] send_operation
+2021-10-28 09:37:45,179 INFO  [aws_smithy_http_tower::parse_response] send_operation; operation="GetItem"
+2021-10-28 09:37:45,179 INFO  [aws_smithy_http_tower::parse_response] send_operation; service="dynamodb"
+2021-10-28 09:37:45,179 INFO  [aws_config::meta::credentials::chain] load_credentials; provider=Environment
+2021-10-28 09:37:45,179 INFO  [aws_config::meta::credentials::chain] loaded credentials provider=Environment 
+2021-10-28 09:37:45,183 INFO  [aws_smithy_http_tower::parse_response] send_operation; status="ok"
+END RequestId: f5799e47-b3d7-4a4f-97fa-1cff3c152b42
+REPORT RequestId: f5799e47-b3d7-4a4f-97fa-1cff3c152b42	Duration: 4.55 ms	Billed Duration: 5 ms	Memory Size: 1024 MB	Max Memory Used: 20 MB	 
+```
+
+### TEST - 128 MB - COLD - dynadmoDB client into the handler ###
 
 ```
 START RequestId: 5eecf9c5-14c8-465a-8450-7c8bb8623b01 Version: $LATEST
@@ -86,7 +210,7 @@ END RequestId: 5eecf9c5-14c8-465a-8450-7c8bb8623b01
 REPORT RequestId: 5eecf9c5-14c8-465a-8450-7c8bb8623b01	Duration: 491.49 ms	Billed Duration: 527 ms	Memory Size: 128 MB	Max Memory Used: 20 MB	Init Duration: 34.61 ms	
 ```
 
-### TEST - 128 MB - WARM ###
+### TEST - 128 MB - WARM - dynadmoDB client into the handler ###
 ```
 START RequestId: 9e9e9741-0518-4f30-919f-d529a378d161 Version: $LATEST
 2021-10-27 15:01:35,887 INFO  [bootstrap::library::lambda::handler] input Request { pk: Some("Daniele") }
@@ -112,7 +236,7 @@ END RequestId: 9e9e9741-0518-4f30-919f-d529a378d161
 REPORT RequestId: 9e9e9741-0518-4f30-919f-d529a378d161	Duration: 24.10 ms	Billed Duration: 25 ms	Memory Size: 128 MB	Max Memory Used: 20 MB	
 ```
 
-### TEST - 1024 MB - COLD ###
+### TEST - 1024 MB - COLD - dynadmoDB client into the handler ###
 
 ```
 START RequestId: 7cb70abb-8ca9-48ed-9ca2-b295e902c19f Version: $LATEST
